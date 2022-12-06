@@ -1,11 +1,17 @@
 [workspace]
 members = [
-    "ndk",
     "ndk-context",
-    "ndk-macro",
-    "ndk-build",
-    "ndk-examples",
-    "ndk-glue",
-    "ndk-sys",
-    "cargo-apk",
+    "examples",
 ]
+
+# Due to the nature of ndk-context providing a static, global variable for other
+# crates to find JVM state it's important for the `examples/` to make sure all
+# `ndk-context` dependencies resolve to the same (local) implementation
+# (otherwise they will end up referencing different global variables)
+#
+# In particular, it's important that android-activity initializes the
+# global state for the local implementation of ndk-context instead of
+# for the stable "0.1.1" release (otherwise the examples will see that the
+# `ndk-context` state has not been initialized)
+[patch.crates-io]
+ndk-context = { path = "ndk-context" }
