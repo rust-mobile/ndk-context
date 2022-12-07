@@ -7,8 +7,8 @@ description = "Handles for accessing Android APIs"
 license = "MIT OR Apache-2.0"
 keywords = ["android", "ndk", "apk", "jni"]
 documentation = "https://docs.rs/ndk-context"
-homepage = "https://github.com/rust-windowing/android-ndk-rs"
-repository = "https://github.com/rust-windowing/android-ndk-rs"
+homepage = "https://github.com/rust-mobile/ndk-context"
+repository = "https://github.com/rust-mobile/ndk-context"
 rust-version = "1.60"
 
 [dev-dependencies]
