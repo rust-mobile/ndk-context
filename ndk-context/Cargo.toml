@@ -10,3 +10,6 @@ documentation = "https://docs.rs/ndk-context"
 homepage = "https://github.com/rust-windowing/android-ndk-rs"
 repository = "https://github.com/rust-windowing/android-ndk-rs"
 rust-version = "1.60"
+
+[dev-dependencies]
+jni = "0.20"

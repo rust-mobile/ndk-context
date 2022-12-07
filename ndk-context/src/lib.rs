@@ -4,19 +4,24 @@
 //! project.
 //!
 //! ```no_run
+//! # use jni::objects::JObject;
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let ctx = ndk_context::android_context();
 //! let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }?;
-//! let env = vm.attach_current_thread();
+//! let context = unsafe { JObject::from_raw(ctx.context().cast()) };
+//! let env = vm.attach_current_thread()?;
 //! let class_ctx = env.find_class("android/content/Context")?;
 //! let audio_service = env.get_static_field(class_ctx, "AUDIO_SERVICE", "Ljava/lang/String;")?;
 //! let audio_manager = env
 //!     .call_method(
-//!         ctx.context() as jni::sys::jobject,
+//!         context,
 //!         "getSystemService",
 //!         "(Ljava/lang/String;)Ljava/lang/Object;",
 //!         &[audio_service],
 //!     )?
 //!     .l()?;
+//! # Ok(())
+//! # }
 //! ```
 use std::ffi::c_void;
 
@@ -35,9 +40,12 @@ impl AndroidContext {
     ///
     /// Usage with [__jni__](https://crates.io/crates/jni) crate:
     /// ```no_run
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let ctx = ndk_context::android_context();
     /// let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }?;
     /// let env = vm.attach_current_thread();
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn vm(self) -> *mut c_void {
         self.java_vm
@@ -48,19 +56,24 @@ impl AndroidContext {
     ///
     /// Usage with [__jni__](https://crates.io/crates/jni) crate:
     /// ```no_run
+    /// # use jni::objects::JObject;
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let ctx = ndk_context::android_context();
     /// let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }?;
-    /// let env = vm.attach_current_thread();
+    /// let context = unsafe { JObject::from_raw(ctx.context().cast()) };
+    /// let env = vm.attach_current_thread()?;
     /// let class_ctx = env.find_class("android/content/Context")?;
     /// let audio_service = env.get_static_field(class_ctx, "AUDIO_SERVICE", "Ljava/lang/String;")?;
     /// let audio_manager = env
     ///     .call_method(
-    ///         ctx.context() as jni::sys::jobject,
+    ///         context,
     ///         "getSystemService",
     ///         "(Ljava/lang/String;)Ljava/lang/Object;",
     ///         &[audio_service],
     ///     )?
     ///     .l()?;
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn context(self) -> *mut c_void {
         self.context_jobject
