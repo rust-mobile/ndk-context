@@ -100,6 +100,11 @@ pub unsafe fn initialize_android_context(java_vm: *mut c_void, context_jobject: 
     assert!(previous.is_none());
 }
 
+/// Returns `true` if the [`AndroidContext`] has been initialized.
+pub fn is_initialized() -> bool {
+    unsafe { ANDROID_CONTEXT.is_some() }
+}
+
 /// Removes the [`AndroidContext`]. It is released by [__ndk-glue__](https://crates.io/crates/ndk-glue)
 /// when the activity is finished and destroyed.
 ///
