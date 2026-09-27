@@ -23,9 +23,21 @@
 //! # Ok(())
 //! # }
 //! ```
-use std::ffi::c_void;
+use std::{
+    ffi::c_void,
+    sync::{PoisonError, RwLock},
+};
 
-static mut ANDROID_CONTEXT: Option<AndroidContext> = None;
+static ANDROID_CONTEXT: RwLock<Option<SharedContext>> = RwLock::new(None);
+
+#[derive(Clone, Copy)]
+struct SharedContext(AndroidContext);
+
+// SAFETY: this crate only copies the addresses and never dereferences them, which is sound on any
+// thread. Callers of `android_context` dereference them under their own `unsafe`.
+unsafe impl Send for SharedContext {}
+// SAFETY: a shared `SharedContext` only hands out copies of the addresses, as for `Send`.
+unsafe impl Sync for SharedContext {}
 
 /// [`AndroidContext`] provides the pointers required to interface with the jni on Android
 /// platforms.
@@ -82,7 +94,10 @@ impl AndroidContext {
 
 /// Main entry point to this crate. Returns an [`AndroidContext`].
 pub fn android_context() -> AndroidContext {
-    unsafe { ANDROID_CONTEXT.expect("android context was not initialized") }
+    let context = *ANDROID_CONTEXT
+        .read()
+        .unwrap_or_else(PoisonError::into_inner);
+    context.expect("android context was not initialized").0
 }
 
 /// Initializes the [`AndroidContext`]. [`AndroidContext`] is initialized by [__ndk-glue__](https://crates.io/crates/ndk-glue)
@@ -93,10 +108,13 @@ pub fn android_context() -> AndroidContext {
 /// The pointers must be valid and this function must be called exactly once before `main` is
 /// called.
 pub unsafe fn initialize_android_context(java_vm: *mut c_void, context_jobject: *mut c_void) {
-    let previous = ANDROID_CONTEXT.replace(AndroidContext {
-        java_vm,
-        context_jobject,
-    });
+    let previous = ANDROID_CONTEXT
+        .write()
+        .unwrap_or_else(PoisonError::into_inner)
+        .replace(SharedContext(AndroidContext {
+            java_vm,
+            context_jobject,
+        }));
     assert!(previous.is_none());
 }
 
@@ -108,6 +126,9 @@ pub unsafe fn initialize_android_context(java_vm: *mut c_void, context_jobject: 
 /// This function must only be called after [`initialize_android_context()`],
 /// when the activity is subsequently destroyed according to Android.
 pub unsafe fn release_android_context() {
-    let previous = ANDROID_CONTEXT.take();
+    let previous = ANDROID_CONTEXT
+        .write()
+        .unwrap_or_else(PoisonError::into_inner)
+        .take();
     assert!(previous.is_some());
 }
