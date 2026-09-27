@@ -12,7 +12,7 @@ log = "0.4.14"
 ndk = { version = "0.7", features = ["api-level-23"] }
 ndk-context = { path = "../ndk-context" }
 android_logger = "0.11.0"
-android-activity = { version = "0.4", features = ["native-activity"] }
+android-activity = { version = "0.6", features = ["native-activity"] }
 
 [[example]]
 name = "hello_world"

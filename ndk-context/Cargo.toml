@@ -9,7 +9,7 @@ keywords = ["android", "ndk", "apk", "jni"]
 documentation = "https://docs.rs/ndk-context"
 homepage = "https://github.com/rust-mobile/ndk-context"
 repository = "https://github.com/rust-mobile/ndk-context"
-rust-version = "1.60"
+rust-version = "1.63"
 
 [dev-dependencies]
 jni = "0.20"
